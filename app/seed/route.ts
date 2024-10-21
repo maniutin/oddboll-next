@@ -1,17 +1,12 @@
 import { db } from "@vercel/postgres";
 import { posts } from "../lib/posts-data";
 
+import { Post } from "../lib/definitions";
+
 const client = await db.connect();
 
-type Post = {
-  title: string;
-  content: string;
-  excerpt: string;
-  category: string;
-};
-
 async function seedPosts() {
-  await client.sql`CREATE EXTENSION IF NOT EXISTS "uuid-ossp"`;
+  // await client.sql`CREATE EXTENSION IF NOT EXISTS "uuid-ossp"`;
   await client.sql`
     CREATE TABLE IF NOT EXISTS posts (
       id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
@@ -25,7 +20,7 @@ async function seedPosts() {
   const insertedPosts = await Promise.all(
     posts.map(async (post: Post) => {
       return client.sql`
-        INSERT INTO posts (id, title, content, excerpt, category)
+        INSERT INTO posts (title, content, excerpt, category)
         VALUES (${post.title}, ${post.content}, ${post.excerpt}, ${post.category})
         ON CONFLICT (id) DO NOTHING;
       `;
